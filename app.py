@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 import os
+
 import whisper
+from langchain.llms import Ollama
+
 
 app = Flask(__name__, template_folder='')
 app.config["UPLOAD_FOLDER"] = "uploads"
@@ -9,6 +12,9 @@ app.config["UPLOAD_FOLDER"] = "uploads"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 model = whisper.load_model("small")
+
+llm = Ollama(model="mistral")
+
 print("Model Loaded")
 @app.route("/")
 def index():
@@ -27,14 +33,12 @@ def upload():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
     file.save(filepath)
     
-    result = model.transcribe(filepath)
-    print(result["text"])
+    transcript = model.transcribe(filepath)
+    print(transcript["text"])
 
-    summary = result["text"]
-
+    summary = llm("Summarize this text, maintaining all relevant points: " + str(transcript["text"]))
+    print(summary)
     return jsonify({"summary": summary})
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
