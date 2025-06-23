@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Meeting Summarizer</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <h1>Upload Audio File</h1>
+    <form id="upload-form">
+        <input type="file" id="audio-file" name="file" accept="audio/*" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div id="result">
+        
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const result = document.getElementById('result');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            result.innerHTML = '';
+
+            const formData = new FormData();
+            const fileInput = document.getElementById('audio-file');
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const res = await axios.post('/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
+            } catch (err) {
+                result.innerHTML = `<p style="color: red;">Error: ${err.response?.data?.error || 'Upload failed'}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
