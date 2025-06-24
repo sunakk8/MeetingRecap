@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template
 import os
 
-import whisper
+from faster_whisper import WhisperModel
 from langchain.llms import Ollama
 
 
@@ -11,7 +11,7 @@ app.config["UPLOAD_FOLDER"] = "uploads"
 # Create the uploads folder if it doesn't exist
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-model = whisper.load_model("small")
+model = WhisperModel("tiny.en", device="cpu")
 
 llm = Ollama(model="mistral")
 
@@ -22,6 +22,7 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
+    print("Uploading...")
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -33,10 +34,14 @@ def upload():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
     file.save(filepath)
     
-    transcript = model.transcribe(filepath)
-    print(transcript["text"])
+    segments, _ = model.transcribe(filepath, language="en")
+    transcript = ""
+    for segment in segments:
+        transcript += segment.text
 
-    summary = llm("Summarize this text, maintaining all relevant points: " + str(transcript["text"]))
+    print(transcript)
+
+    summary = llm("Summarize this text, maintaining all relevant points: " + transcript)
     print(summary)
     return jsonify({"summary": summary})
 
