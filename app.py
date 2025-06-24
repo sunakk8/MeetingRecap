@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify, render_template
 import os
 
+from flask_socketio import SocketIO, emit
+
+socketio = SocketIO(Flask(__name__), cors_allowed_origins="*")
+
 from faster_whisper import WhisperModel
 from langchain.llms import Ollama
 
@@ -22,7 +26,6 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload():
-    print("Uploading...")
     if "file" not in request.files:
         return jsonify({"error": "No file part"}), 400
 
@@ -34,6 +37,7 @@ def upload():
     filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
     file.save(filepath)
     
+    socketio.emit("status", {"msg": "Transcribing..."})
     segments, _ = model.transcribe(filepath, language="en")
     transcript = ""
     for segment in segments:
@@ -41,9 +45,17 @@ def upload():
 
     print(transcript)
 
+    socketio.emit("status", {"msg": "Summarizing..."})
     summary = llm("Summarize this text, maintaining all relevant points: " + transcript)
+
+    socketio.emit("status", {"msg": "Summarization Complete"})
     print(summary)
-    return jsonify({"summary": summary})
+    return jsonify({"transcript": transcript, "summary": summary})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    from flask_socketio import SocketIO
+
+    # Make sure this is defined globally
+    socketio = SocketIO(app, cors_allowed_origins="*")
+
+    socketio.run(app, debug=True)

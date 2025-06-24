@@ -4,21 +4,37 @@
     <meta charset="UTF-8">
     <title>AI Meeting Summarizer</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
 <body>
     <h1>Upload Audio File</h1>
+    
     <form id="upload-form">
         <input type="file" id="audio-file" name="file" accept="audio/*" required>
         <button type="submit">Submit</button>
     </form>
 
-    <div id="result">
-        
+    <div id="status" style="margin-top: 1em; color: gray;">
+        Waiting for file upload...
     </div>
 
+    <div id="result" style="margin-top: 1em;"></div>
+
+    <div id="transcript" style="margin-top: 1em;"></div>
     <script>
         const form = document.getElementById('upload-form');
         const result = document.getElementById('result');
+        const status = document.getElementById('status');
+        const transcript = document.getElementById('transcript')
+
+        // Connect to the backend via Socket.IO
+        const socket = io('http://localhost:5000');
+
+        // Listen for status updates from the backend
+        socket.on('status', (data) => {
+            status.textContent = data.msg;
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             result.innerHTML = '';
@@ -32,7 +48,11 @@
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
+                transcript.innerHTML = `<h3>Transcript:</h3><p>${res.data.transcript}</p>`;
+
+
             } catch (err) {
+                status.textContent = 'Error during upload.';
                 result.innerHTML = `<p style="color: red;">Error: ${err.response?.data?.error || 'Upload failed'}</p>`;
             }
         });
