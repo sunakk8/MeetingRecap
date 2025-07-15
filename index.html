@@ -26,6 +26,11 @@
         const result = document.getElementById('result');
         const status = document.getElementById('status');
         const transcript = document.getElementById('transcript')
+        const toggleBtn = document.createElement('button');
+        toggleBtn.textContent = 'View Transcript';
+        toggleBtn.style.marginTop = '10px';
+        var btnClicked = false;
+
 
         // Connect to the backend via Socket.IO
         const socket = io('http://localhost:5000');
@@ -44,11 +49,25 @@
             formData.append('file', fileInput.files[0]);
 
             try {
+                // When transcript/summary is finished
                 const res = await axios.post('/upload', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
+                toggleBtn.addEventListener('click', () => {
+                    if (btnClicked) {
+                        transcript.removeChild(transcript.lastChild);
+                        btnClicked = false;
+                    }
+                    else {
+                        text = document.createElement('p');
+                        text.innerText = res.data.transcript;
+                        transcript.appendChild(text);
+                        btnClicked = true;
+                    }
+                    
+                })
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
-                transcript.innerHTML = `<h3>Transcript:</h3><p>${res.data.transcript}</p>`;
+                transcript.appendChild(toggleBtn);
 
 
             } catch (err) {
