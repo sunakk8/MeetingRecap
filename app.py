@@ -40,13 +40,13 @@ def upload():
     socketio.emit("status", {"msg": "Transcribing..."})
     segments, _ = model.transcribe(filepath, language="en")
     transcript = ""
+    text = ""
     for segment in segments:
-        transcript += segment.text
-
-    print(transcript)
+        transcript += f"{segment.start}-{segment.end}    {segment.text}"
+        text += segment.text
 
     socketio.emit("status", {"msg": "Summarizing..."})
-    summary = llm("Summarize this text, maintaining all relevant points: " + transcript)
+    summary = llm("Summarize this text, maintaining all relevant points: " + text)
 
     socketio.emit("status", {"msg": "Summarization Complete"})
     print(summary)

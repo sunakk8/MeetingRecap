@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>AI Meeting Summarizer</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
 </head>
+
 <body>
     <h1>Upload Audio File</h1>
-    
+
     <form id="upload-form">
         <input type="file" id="audio-file" name="file" accept="audio/*" required>
         <button type="submit">Submit</button>
@@ -20,7 +22,9 @@
 
     <div id="result" style="margin-top: 1em;"></div>
 
-    <div id="transcript" style="margin-top: 1em;"></div>
+    <div id="transcript" style="margin-top: 1em;">
+        <text id="tr-text"></text>
+    </div>
     <script>
         const form = document.getElementById('upload-form');
         const result = document.getElementById('result');
@@ -29,7 +33,8 @@
         const toggleBtn = document.createElement('button');
         toggleBtn.textContent = 'View Transcript';
         toggleBtn.style.marginTop = '10px';
-        var btnClicked = false;
+        let viewTrClicked = false;
+        let viewTrAdded = false;
 
 
         // Connect to the backend via Socket.IO
@@ -53,28 +58,37 @@
                 const res = await axios.post('/upload', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                toggleBtn.addEventListener('click', () => {
-                    if (btnClicked) {
-                        transcript.removeChild(transcript.lastChild);
-                        btnClicked = false;
+                if (!viewTrAdded) {
+                    function handleClick() {
+                        let textElement = document.getElementById("tr-text");
+                        if (viewTrClicked) {
+                            textElement.style.visibility = "visible";
+                            viewTrClicked = false;
+                        }
+                        else {
+                            textElement.style.visibility = "hidden";
+                            viewTrClicked = true;
+                        }
                     }
-                    else {
-                        text = document.createElement('p');
-                        text.innerText = res.data.transcript;
-                        transcript.appendChild(text);
-                        btnClicked = true;
-                    }
-                    
-                })
+                    toggleBtn.addEventListener('click', handleClick);
+                    viewTrAdded = true;
+                    transcript.prepend(document.createElement("br"));
+                    transcript.prepend(toggleBtn);
+                }
+
+                
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
-                transcript.appendChild(toggleBtn);
+                document.getElementById("tr-text").innerText = res.data.transcript;
+                
 
 
             } catch (err) {
                 status.textContent = 'Error during upload.';
                 result.innerHTML = `<p style="color: red;">Error: ${err.response?.data?.error || 'Upload failed'}</p>`;
+                console.log(err);
             }
         });
     </script>
 </body>
+
 </html>
