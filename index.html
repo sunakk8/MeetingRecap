@@ -25,12 +25,27 @@
     <div id="transcript" style="margin-top: 1em;">
         <text id="tr-text"></text>
     </div>
+
+    <div id="chat" style="margin-top: 1em;">
+        <div id="chat-window">
+            <h3 id="chat-header"></h3>
+            <form id="chat-form" style="visibility: hidden;">
+                <input type="text" id="chat-input" placeholder="Type your question:">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
     <script>
         const form = document.getElementById('upload-form');
         const result = document.getElementById('result');
         const status = document.getElementById('status');
-        const transcript = document.getElementById('transcript')
+
+        const transcript = document.getElementById('transcript');
         const toggleBtn = document.createElement('button');
+
+        const chat = document.getElementById('chat');
+        const chatWindow = document.getElementById('chat-window');
+        const chatForm = document.getElementById('chat-form');
         toggleBtn.textContent = 'View Transcript';
         toggleBtn.style.marginTop = '10px';
         let viewTrClicked = false;
@@ -79,6 +94,10 @@
                 
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
                 document.getElementById("tr-text").innerText = res.data.transcript;
+
+                document.getElementById("chat-header").innerText = "Chat:";
+                chatForm.style.visibility = "visible";
+
                 
 
 
