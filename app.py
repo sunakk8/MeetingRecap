@@ -42,7 +42,7 @@ def upload():
     transcript = ""
     text = ""
     for segment in segments:
-        transcript += f"{segment.start}-{segment.end}    {segment.text}"
+        transcript += f"{segment.start}-{segment.end}:    {segment.text}\n"
         text += segment.text
 
     socketio.emit("status", {"msg": "Summarizing..."})
