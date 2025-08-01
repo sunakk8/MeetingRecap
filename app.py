@@ -52,6 +52,13 @@ def upload():
     print(summary)
     return jsonify({"transcript": transcript, "summary": summary})
 
+@app.route("/chat", methods=["POST"])
+def chat():
+    msg = request.json.get('msg','')
+    reply = 'test reply'
+    return jsonify({'reply': reply})
+
+
 if __name__ == "__main__":
     from flask_socketio import SocketIO
 

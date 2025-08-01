@@ -33,6 +33,7 @@
                 <input type="text" id="chat-input" placeholder="Type your question:">
                 <button type="submit">Send</button>
             </form>
+            <div id="chat-output"></div>
         </div>
     </div>
     <script>
@@ -46,10 +47,13 @@
         const chat = document.getElementById('chat');
         const chatWindow = document.getElementById('chat-window');
         const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatOutput = document.getElementById('chat-output');
         toggleBtn.textContent = 'View Transcript';
         toggleBtn.style.marginTop = '10px';
         let viewTrClicked = false;
         let viewTrAdded = false;
+
 
 
         // Connect to the backend via Socket.IO
@@ -98,13 +102,39 @@
                 document.getElementById("chat-header").innerText = "Chat:";
                 chatForm.style.visibility = "visible";
 
-                
-
-
             } catch (err) {
                 status.textContent = 'Error during upload.';
                 result.innerHTML = `<p style="color: red;">Error: ${err.response?.data?.error || 'Upload failed'}</p>`;
-                console.log(err);
+                console.error(err);
+            }
+        });
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            result.innerHTML = '';
+
+            const msg = chatInput.value.trim();
+            if (msg == '') return;
+
+            const userDiv = document.createElement('p');
+            userDiv.id = 'user-msg';
+            userDiv.textContent = msg;
+            chatOutput.appendChild(userDiv);
+            chatInput.value = '';
+
+            try {
+                const res = await axios.post('/chat',{msg});
+                const reply = res.data.reply;
+
+                const llmDiv = document.createElement('p');
+                llmDiv.id = 'llm-msg';
+                llmDiv.textContent = reply;
+                chatOutput.appendChild(llmDiv);
+
+
+            } catch (err) {
+                chatOutput.innerText = 'Error sending message.';
+                console.error(err);
             }
         });
     </script>
