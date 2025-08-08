@@ -22,7 +22,7 @@
 
     <div id="result" style="margin-top: 1em;"></div>
 
-    <div id="transcript" style="margin-top: 1em;">
+    <div id="transcript" style="margin-top: 1em; white-space: pre;">
         <text id="tr-text"></text>
     </div>
 
@@ -43,16 +43,19 @@
 
         const transcript = document.getElementById('transcript');
         const toggleBtn = document.createElement('button');
+        let transcriptText = "";
+        toggleBtn.textContent = 'View Transcript';
+        toggleBtn.style.marginTop = '10px';
+        let viewTrClicked = false;
+        let viewTrAdded = false;
 
         const chat = document.getElementById('chat');
         const chatWindow = document.getElementById('chat-window');
         const chatForm = document.getElementById('chat-form');
         const chatInput = document.getElementById('chat-input');
         const chatOutput = document.getElementById('chat-output');
-        toggleBtn.textContent = 'View Transcript';
-        toggleBtn.style.marginTop = '10px';
-        let viewTrClicked = false;
-        let viewTrAdded = false;
+
+        
 
 
 
@@ -81,23 +84,24 @@
                     function handleClick() {
                         let textElement = document.getElementById("tr-text");
                         if (viewTrClicked) {
-                            textElement.style.visibility = "visible";
+                            textElement.innerText = "";
                             viewTrClicked = false;
                         }
                         else {
-                            textElement.style.visibility = "hidden";
+                            textElement.innerText = transcriptText;
                             viewTrClicked = true;
                         }
                     }
                     toggleBtn.addEventListener('click', handleClick);
                     viewTrAdded = true;
-                    transcript.prepend(document.createElement("br"));
+                    // transcript.prepend(document.createElement("br"));
                     transcript.prepend(toggleBtn);
                 }
 
                 
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
-                document.getElementById("tr-text").innerText = res.data.transcript;
+                transcriptText = res.data.transcript;
+                document.getElementById("tr-text").innerText = "";
 
                 document.getElementById("chat-header").innerText = "Chat:";
                 chatForm.style.visibility = "visible";
