@@ -41,9 +41,11 @@ def upload():
     segments, _ = model.transcribe(filepath, language="en")
     transcript = "\n"
     text = ""
+    transcript_data = []
     for segment in segments:
         time_range = f"{format_time(segment.start)}-{format_time(segment.end)}".ljust(20, " ")
-        transcript += (time_range + f"{segment.text}\n")
+        #transcript += (time_range + f"{segment.text}\n")
+        transcript_data.append({"start": segment.start, "time": time_range, "text": segment.text})
         text += segment.text
 
     socketio.emit("status", {"msg": "Summarizing..."})
@@ -55,7 +57,7 @@ def upload():
     with open("transcripts/tr.txt", "w") as f:
         f.write(text)
 
-    return jsonify({"transcript": transcript, "summary": summary})
+    return jsonify({"transcript": transcript_data, "summary": summary})
 
 @app.route("/chat", methods=["POST"])
 def chat():

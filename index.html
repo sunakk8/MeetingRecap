@@ -26,11 +26,9 @@
         <text id="tr-text"></text>
     </div>
 
-    <div id="audio" style="margin-top: 1em;">
-        
-    </div>
+    <div id="audio"></div>
 
-    <div id="chat" style="margin-top: 1em;">
+    <div id="chat">
         <div id="chat-window">
             <h3 id="chat-header"></h3>
             <form id="chat-form" style="visibility: hidden;">
@@ -47,7 +45,6 @@
 
         const transcript = document.getElementById('transcript');
         const toggleBtn = document.createElement('button');
-        let transcriptText = "";
         toggleBtn.textContent = 'View Transcript';
         toggleBtn.style.marginTop = '10px';
         let viewTrClicked = false;
@@ -90,26 +87,42 @@
                     function handleClick() {
                         let textElement = document.getElementById("tr-text");
                         if (viewTrClicked) {
-                            textElement.innerText = "";
+                            textElement.style.display = "none";
                             viewTrClicked = false;
                         }
                         else {
-                            textElement.innerText = transcriptText;
+                            textElement.style.display = "block";
                             viewTrClicked = true;
                         }
                     }
                     toggleBtn.addEventListener('click', handleClick);
                     viewTrAdded = true;
-                    transcript.prepend(document.createElement("br"));
                     transcript.prepend(toggleBtn);
                 }
-
                 
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
-                transcriptText = res.data.transcript;
-                document.getElementById("tr-text").innerText = "";
+
+                res.data.transcript.forEach(seg => {
+                    const line = document.createElement("div");
+                    const time = document.createElement("span");
+                    time.textContent = seg.time;
+                    time.style.cursor = "pointer";
+                    time.style.color = "blue";
+                    time.addEventListener("click", () => {
+                        const audio = document.getElementById("audio-player");
+                        audio.currentTime = seg.start;
+                        audio.play();
+                    });
+                    const txt = document.createElement("span");
+                    txt.textContent = seg.text;
+
+                    line.appendChild(time);
+                    line.appendChild(txt);
+                    document.getElementById("tr-text").appendChild(line);
+                });
 
                 const a = document.createElement("audio");
+                a.id = "audio-player";
                 a.controls = "controls";
                 const url = URL.createObjectURL(file);
                 a.src = url;
