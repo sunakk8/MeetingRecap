@@ -42,7 +42,8 @@ def upload():
     transcript = ""
     text = ""
     for segment in segments:
-        transcript += f"{segment.start}-{segment.end}:    {segment.text}\n"
+        time_range = f"{format_time(segment.start)}-{format_time(segment.end)}".ljust(20, " ")
+        transcript += (time_range + f"{segment.text}\n")
         text += segment.text
 
     socketio.emit("status", {"msg": "Summarizing..."})
@@ -65,6 +66,10 @@ def chat():
     reply = llm(f"Answer the user's question truthfully. This is the transcript to refer to: \"{transcript}\". User Message: " + msg)
     return jsonify({'reply': reply})
 
+def format_time(t):
+    min = int(t) // 60
+    sec = int(t) % 60
+    return f"{min}:{sec:02d}"
 
 if __name__ == "__main__":
     from flask_socketio import SocketIO
