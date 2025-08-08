@@ -39,7 +39,7 @@ def upload():
     
     socketio.emit("status", {"msg": "Transcribing..."})
     segments, _ = model.transcribe(filepath, language="en")
-    transcript = ""
+    transcript = "\n"
     text = ""
     for segment in segments:
         time_range = f"{format_time(segment.start)}-{format_time(segment.end)}".ljust(20, " ")
