@@ -26,6 +26,10 @@
         <text id="tr-text"></text>
     </div>
 
+    <div id="audio" style="margin-top: 1em;">
+        
+    </div>
+
     <div id="chat" style="margin-top: 1em;">
         <div id="chat-window">
             <h3 id="chat-header"></h3>
@@ -49,6 +53,7 @@
         let viewTrClicked = false;
         let viewTrAdded = false;
 
+        const audioPlayer = document.getElementById('audio');
         const chat = document.getElementById('chat');
         const chatWindow = document.getElementById('chat-window');
         const chatForm = document.getElementById('chat-form');
@@ -73,7 +78,8 @@
 
             const formData = new FormData();
             const fileInput = document.getElementById('audio-file');
-            formData.append('file', fileInput.files[0]);
+            const file = fileInput.files[0];
+            formData.append('file', file);
 
             try {
                 // When transcript/summary is finished
@@ -94,7 +100,7 @@
                     }
                     toggleBtn.addEventListener('click', handleClick);
                     viewTrAdded = true;
-                    // transcript.prepend(document.createElement("br"));
+                    transcript.prepend(document.createElement("br"));
                     transcript.prepend(toggleBtn);
                 }
 
@@ -102,6 +108,12 @@
                 result.innerHTML = `<h3>Summary:</h3><p>${res.data.summary}</p>`;
                 transcriptText = res.data.transcript;
                 document.getElementById("tr-text").innerText = "";
+
+                const a = document.createElement("audio");
+                a.controls = "controls";
+                const url = URL.createObjectURL(file);
+                a.src = url;
+                audioPlayer.appendChild(a);
 
                 document.getElementById("chat-header").innerText = "Chat:";
                 chatForm.style.visibility = "visible";
