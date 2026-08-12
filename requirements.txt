@@ -3,3 +3,4 @@ flask-socketio
 python-socketio
 faster-whisper
 langchain
+langchain-community

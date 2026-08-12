@@ -1,1 +1,19 @@
-README.md
+# Dependencies
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Runtime data
+uploads/
+transcripts/
+
+# OS / editor
+.DS_Store
+*.log
